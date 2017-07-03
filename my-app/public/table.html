@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Table Example</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <div id="app">
+            
+        </div>
+
+        <script  src="https://unpkg.com/react@15.3.0/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@15.3.0/dist/react-dom.js"></script>
+        <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
+        <script src="https://unpkg.com/react@15.3.0/dist/react-with-addons.js"></script>
+
+        <script>
+            var headers = ['Book','Author','Published','Sales'];
+            var data  = [['Book1','GarNg','2001','100'],
+                         ['Book2','GGG','2002','200'],
+                         ['Book3','TEST','2003','300']];
+            
+            var table = React.createClass({
+                displayName:'Table',
+                render:function(){
+                    return (
+                        React.DOM.table(null,
+                            React.DOM.thead(null,
+                                React.DOM.tr(null,
+                                    this.props.headers.map(function(title){
+                                        return React.DOM.th(null,title);
+                                    })
+                                )
+                            )
+                        )
+                    );
+                }
+            });
+
+            ReactDOM.render(
+                React.createElement(table,{
+                   headers:headers,
+                   initialData:data, 
+                }),
+                document.getElementById('app')
+            );
+        </script>
+
+    </body>
+</html>
