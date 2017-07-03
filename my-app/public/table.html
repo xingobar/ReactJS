@@ -39,7 +39,8 @@
                     return {
                         data:this.props.initialData,
                         sortby:null, // column index
-                        descending:false  // asc or desc
+                        descending:false,  // asc or desc
+                        edit:null,
                     }
                 },
                 _sort:function(event){
@@ -57,6 +58,24 @@
                         descending:descending,
                     });
                 },
+                _showEditor:function(element){
+                    this.setState({
+                        edit:{
+                            row:parseInt(element.target.dataset.row,10),
+                            cell:element.target.cellIndex,
+                        }
+                    });
+                },
+                _save:function(element){
+                    element.preventDefault();
+                    var input = element.target.firstChild;
+                    var data = this.state.data.slice(); // 複製
+                    data[this.state.edit.row][this.state.edit.cell] = input.value;
+                    this.setState({
+                        data:data,
+                        edit:null,
+                    });
+                },
                 render:function(){
                     return (
                         React.DOM.table({className:'table'},
@@ -70,16 +89,29 @@
                                     },this)
                                 )
                             ),
-                            React.DOM.tbody(null,
-                                this.state.data.map(function(row,index){
+                            React.DOM.tbody({onDoubleClick:this._showEditor},
+                                this.state.data.map(function(row,row_index){
                                     return (
-                                        React.DOM.tr({key:index},
+                                        React.DOM.tr({key:row_index},
                                             row.map(function(cell,index){
-                                                return React.DOM.td({key:index},cell)
-                                            })
+                                                var edit = this.state.edit;
+                                                var content = cell;
+                                                if(edit && edit.row === row_index && edit.cell === index){
+                                                    content = React.DOM.form({onSubmit:this._save},
+                                                        React.DOM.input({
+                                                            type:'text',
+                                                            defaultValue:cell
+                                                        })
+                                                    )
+                                                }
+                                                return React.DOM.td({
+                                                     key:index,
+                                                    'data-row':row_index,
+                                                },content)
+                                            },this)
                                         )   
                                     )
-                                })
+                                },this)
                             )
                         )
                     );
