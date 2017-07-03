@@ -45,12 +45,16 @@
                 _sort:function(event){
                     var column = event.target.cellIndex; // 取得欄位索引
                     var data = this.state.data.slice(); // 複製資料
+                    var descending = this.state.sortby === column && !this.state.descending;
                     data.sort(function(a,b){
-                        // 遞增排序
-                        return a[column] > b[column] ? 1 : -1;
+                        return descending 
+                            ?(a[column] < b[column] ? 1 : -1) // 遞減排序
+                            :(a[column] > b[column] ? 1 : -1) // 遞增排序
                     });
                     this.setState({
-                        data:data
+                        data:data,
+                        sortby:column,
+                        descending:descending,
                     });
                 },
                 render:function(){
@@ -59,8 +63,11 @@
                             React.DOM.thead({onClick:this._sort},
                                 React.DOM.tr(null,
                                     this.props.headers.map(function(title,index){
+                                        if(this.state.sortby === index){
+                                            title += this.state.descending ? '\u2191' : '\u2193';
+                                        }
                                         return React.DOM.th({key:index},title);
-                                    })
+                                    },this)
                                 )
                             ),
                             React.DOM.tbody(null,
