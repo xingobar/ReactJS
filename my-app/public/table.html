@@ -41,6 +41,8 @@
                         sortby:null, // column index
                         descending:false,  // asc or desc
                         edit:null,
+                        search:false,
+                        _preSearchData:null
                     }
                 },
                 _sort:function(event){
@@ -77,6 +79,74 @@
                     });
                 },
                 render:function(){
+                    return(
+                        React.DOM.div(null,
+                            this._renderToolbar(),
+                            this._renderTable()
+                        )
+                    );
+                },
+                _renderToolbar:function(){
+                    return(
+                        React.DOM.button(
+                            {
+                                onClick:this._toggleSearch,
+                                className:'toolbar'
+                            },
+                            'search'
+                        )
+                    );
+                },
+                _toggleSearch:function(){
+                    if(this.state.search){
+                        this.setState({
+                            data:this._preSearchData,
+                            search:false
+                        });
+                        this._preSearchData = null;
+                    }else{
+                        this._preSearchData = this.state.data,
+                        this.setState({
+                            search:true
+                        });
+                    }
+                },
+                _renderSearch:function(){
+                    if(!this.state.search){
+                        return null;
+                    }
+                    return(
+                        React.DOM.tr({
+                            onChange:this._search
+                        },
+                            this.props.headers.map(function(_ignore,index){
+                                return(
+                                    React.DOM.td({key:index},
+                                        React.DOM.input({
+                                            type:'text',
+                                            'data-idx':index
+                                        }))
+                                );
+                            }))
+                    );
+                },
+                _search:function(element){
+                    var searchText = element.target.value.toLowerCase();
+                    if(!searchText){
+                        this.setState({
+                            data:this._preSearchData
+                        });
+                        return;
+                    }
+                    var index = element.target.dataset.idx;
+                    var searchData = this._preSearchData.filter(function(row){
+                        return row[index].toString().toLowerCase().indexOf(searchText) > -1;
+                    });
+                    this.setState({
+                        data:searchData
+                    });
+                },
+                _renderTable:function(){
                     return (
                         React.DOM.table({className:'table'},
                             React.DOM.thead({onClick:this._sort},
@@ -90,6 +160,7 @@
                                 )
                             ),
                             React.DOM.tbody({onDoubleClick:this._showEditor},
+                                this._renderSearch(),
                                 this.state.data.map(function(row,row_index){
                                     return (
                                         React.DOM.tr({key:row_index},
